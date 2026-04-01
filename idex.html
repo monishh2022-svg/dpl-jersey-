@@ -3,572 +3,150 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DPL Cricket League — Jersey Colour Selection</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<title>DPL Jersey Selection</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
 <style>
-  :root {
-    --bg: #06090f;
-    --surface: #0e1420;
-    --surface2: #161e2e;
-    --border: #1f2d44;
-    --border2: #2a3d58;
-    --accent: #f5a623;
-    --accent2: #e8390e;
-    --text: #dde3f0;
-    --muted: #5a6d8a;
-    --success: #22c55e;
-    --radius: 14px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+body { background:#06090f; color:#fff; font-family:'DM Sans'; margin:0; }
+header { text-align:center; padding:40px; }
+h1 { font-family:'Bebas Neue'; font-size:60px; }
 
-  /* Radial glow */
-  body::before {
-    content: '';
-    position: fixed;
-    top: -120px; left: 50%;
-    transform: translateX(-50%);
-    width: 900px; height: 420px;
-    background: radial-gradient(ellipse, rgba(245,166,35,0.06) 0%, transparent 65%);
-    pointer-events: none; z-index: 0;
-  }
+.form-grid { max-width:900px; margin:auto; display:grid; gap:10px; padding:20px; }
+.card { background:#111827; padding:15px; border-radius:10px; display:flex; justify-content:space-between; align-items:center; }
 
-  /* ── HEADER ── */
-  header {
-    position: relative; z-index: 1;
-    text-align: center;
-    padding: 56px 24px 40px;
-    border-bottom: 1px solid var(--border);
-  }
-  .badge {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: rgba(245,166,35,0.1);
-    border: 1px solid rgba(245,166,35,0.28);
-    border-radius: 100px;
-    padding: 5px 18px;
-    font-size: 11px; font-weight: 600;
-    letter-spacing: 2.5px; text-transform: uppercase; color: var(--accent);
-    margin-bottom: 22px;
-  }
-  h1 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(44px, 9vw, 80px);
-    letter-spacing: 4px; line-height: 0.9;
-    background: linear-gradient(140deg, #fff 25%, var(--accent) 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  header .sub {
-    margin-top: 14px; color: var(--muted);
-    font-size: 14px; font-weight: 300; line-height: 1.6;
-  }
-  .stats {
-    display: flex; justify-content: center; gap: 48px;
-    margin-top: 32px; flex-wrap: wrap;
-  }
-  .stat-num {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 36px; color: var(--accent); line-height: 1;
-  }
-  .stat-lbl {
-    font-size: 10px; text-transform: uppercase;
-    letter-spacing: 1.8px; color: var(--muted); margin-top: 3px;
-  }
+select { padding:8px; border-radius:6px; }
 
-  /* ── STICKY PROGRESS ── */
-  .sticky-bar {
-    position: sticky; top: 0; z-index: 100;
-    background: rgba(6,9,15,0.96);
-    backdrop-filter: blur(16px);
-    border-bottom: 1px solid var(--border);
-    padding: 11px 24px;
-  }
-  .sticky-inner {
-    max-width: 960px; margin: 0 auto;
-    display: flex; align-items: center; gap: 14px;
-  }
-  .sticky-label { font-size: 11px; color: var(--muted); white-space: nowrap; font-weight: 500; }
-  .bar-track {
-    flex: 1; height: 5px;
-    background: var(--border2); border-radius: 100px; overflow: hidden;
-  }
-  .bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent2), var(--accent));
-    border-radius: 100px;
-    transition: width 0.5s cubic-bezier(.4,0,.2,1);
-    width: 0%;
-  }
-  .bar-count {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px; color: var(--accent); white-space: nowrap;
-  }
+.locked { border:1px solid #22c55e; }
 
-  /* ── MAIN ── */
-  main {
-    max-width: 960px; margin: 0 auto;
-    padding: 44px 24px 100px;
-    position: relative; z-index: 1;
-  }
-
-  /* Palette legend */
-  .section-hd {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 18px; letter-spacing: 2.5px; color: var(--muted);
-    display: flex; align-items: center; gap: 12px;
-    margin-bottom: 18px;
-  }
-  .section-hd::after {
-    content: ''; flex: 1; height: 1px; background: var(--border);
-  }
-
-  .palette {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
-    gap: 7px; margin-bottom: 48px;
-  }
-  .chip {
-    display: flex; flex-direction: column; align-items: center; gap: 5px;
-    padding: 8px 4px; border-radius: 9px;
-    border: 1px solid var(--border);
-    transition: opacity 0.3s, filter 0.3s;
-  }
-  .chip.taken {
-    opacity: 0.22; filter: grayscale(0.6);
-    border-color: transparent;
-  }
-  .swatch {
-    width: 30px; height: 30px; border-radius: 50%;
-    border: 2px solid rgba(255,255,255,0.12);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
-  }
-  .chip-lbl {
-    font-size: 8.5px; text-align: center; color: var(--muted);
-    text-transform: uppercase; letter-spacing: 0.4px; line-height: 1.25;
-  }
-
-  /* Team cards */
-  .form-grid { display: grid; gap: 12px; }
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 18px 22px;
-    display: grid;
-    grid-template-columns: 40px 1fr auto 30px;
-    align-items: center;
-    gap: 16px;
-    transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
-    animation: fadeUp 0.4s ease both;
-  }
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .card:hover { border-color: var(--border2); transform: translateY(-1px); }
-  .card.done {
-    border-color: rgba(34,197,94,0.4);
-    background: linear-gradient(135deg, var(--surface), rgba(34,197,94,0.04));
-  }
-
-  .num {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 24px; color: var(--muted); text-align: center; line-height: 1;
-  }
-  .card.done .num { color: var(--success); }
-
-  .team-info .name { font-weight: 600; font-size: 14px; letter-spacing: 0.2px; }
-  .team-info .abbr {
-    font-size: 10px; color: var(--muted); margin-top: 2px;
-    text-transform: uppercase; letter-spacing: 1px;
-  }
-
-  /* Colour picker */
-  .picker {
-    position: relative; min-width: 210px;
-  }
-  .preview-dot {
-    position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
-    width: 15px; height: 15px; border-radius: 50%;
-    background: var(--border2); border: 1.5px solid rgba(255,255,255,0.12);
-    transition: background 0.3s; pointer-events: none; z-index: 2;
-  }
-  select {
-    width: 100%; appearance: none;
-    background: var(--surface2);
-    border: 1px solid var(--border2);
-    color: var(--text);
-    padding: 10px 32px 10px 34px;
-    border-radius: 9px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px; font-weight: 500;
-    cursor: pointer; outline: none;
-    transition: border-color 0.2s;
-  }
-  select:focus { border-color: var(--accent); }
-  .arr {
-    position: absolute; right: 11px; top: 50%; transform: translateY(-50%);
-    font-size: 9px; color: var(--muted); pointer-events: none;
-  }
-
-  .tick {
-    width: 24px; height: 24px; border-radius: 50%;
-    background: var(--success);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; opacity: 0; transition: opacity 0.3s;
-    flex-shrink: 0;
-  }
-  .card.done .tick { opacity: 1; }
-
-  /* Submit */
-  .submit-wrap { margin-top: 52px; text-align: center; }
-  .submit-btn {
-    background: linear-gradient(135deg, var(--accent2), var(--accent));
-    border: none; color: #fff;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px; letter-spacing: 3px;
-    padding: 18px 60px; border-radius: 100px; cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
-    box-shadow: 0 4px 28px rgba(245,166,35,0.18);
-  }
-  .submit-btn:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 36px rgba(245,166,35,0.3);
-  }
-  .submit-btn:disabled { opacity: 0.38; cursor: not-allowed; }
-  .submit-hint { margin-top: 11px; font-size: 12px; color: var(--muted); }
-
-  /* ── MODAL ── */
-  .overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.88); backdrop-filter: blur(8px);
-    z-index: 200; display: none;
-    align-items: center; justify-content: center; padding: 24px;
-  }
-  .overlay.open { display: flex; }
-  .modal {
-    background: var(--surface);
-    border: 1px solid var(--border2);
-    border-radius: 20px;
-    padding: 44px 36px;
-    max-width: 660px; width: 100%;
-    max-height: 82vh; overflow-y: auto;
-    animation: popIn 0.3s cubic-bezier(.34,1.56,.64,1);
-  }
-  @keyframes popIn {
-    from { opacity: 0; transform: scale(0.88); }
-    to   { opacity: 1; transform: scale(1); }
-  }
-  .modal h2 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 40px; letter-spacing: 2px; color: var(--success);
-    margin-bottom: 6px;
-  }
-  .modal .modal-sub { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
-  .result-list { display: grid; gap: 7px; margin-bottom: 28px; }
-  .r-item {
-    display: flex; align-items: center; gap: 12px;
-    background: var(--surface2); border-radius: 9px; padding: 10px 14px;
-    font-size: 13px;
-  }
-  .r-dot {
-    width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0;
-    border: 1.5px solid rgba(255,255,255,0.12);
-  }
-  .r-team { flex: 1; font-weight: 600; }
-  .r-colour { color: var(--muted); font-size: 12px; }
-  .modal-btns { display: grid; gap: 8px; }
-  .btn-copy {
-    background: linear-gradient(135deg, var(--accent2), var(--accent));
-    border: none; color: #fff; padding: 13px;
-    border-radius: 9px; cursor: pointer;
-    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
-    transition: opacity 0.2s;
-  }
-  .btn-copy:hover { opacity: 0.88; }
-  .btn-close {
-    background: var(--border2); border: none; color: var(--text);
-    padding: 13px; border-radius: 9px; cursor: pointer;
-    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
-    transition: background 0.2s;
-  }
-  .btn-close:hover { background: var(--surface2); }
-
-  @media (max-width: 600px) {
-    .card { grid-template-columns: 32px 1fr; grid-template-rows: auto auto; }
-    .picker { grid-column: 1 / -1; min-width: unset; }
-    .tick { display: none; }
-  }
+button {
+  background:#f5a623; border:none; padding:15px 30px;
+  font-size:18px; border-radius:50px; cursor:pointer;
+}
+button:disabled { opacity:0.4; }
 </style>
 </head>
+
 <body>
 
 <header>
-  <div class="badge">🏏 DPL Cricket League 2025</div>
-  <h1>Jersey Colour<br>Selection</h1>
-  <p class="sub">
-    Select your team's jersey colour below.<br>
-    Each colour can only be chosen by one team — it disappears once taken.
-  </p>
-  <div class="stats">
-    <div>
-      <div class="stat-num">28</div>
-      <div class="stat-lbl">Teams</div>
-    </div>
-    <div>
-      <div class="stat-num" id="selCount">0</div>
-      <div class="stat-lbl">Selected</div>
-    </div>
-    <div>
-      <div class="stat-num" id="remCount">32</div>
-      <div class="stat-lbl">Colours Left</div>
-    </div>
-  </div>
+<h1>DPL Jersey Selection</h1>
+<p>Select once → permanently locked</p>
 </header>
 
-<div class="sticky-bar">
-  <div class="sticky-inner">
-    <span class="sticky-label">Completion</span>
-    <div class="bar-track"><div class="bar-fill" id="barFill"></div></div>
-    <span class="bar-count" id="barCount">0 / 28</span>
-  </div>
-</div>
+<div class="form-grid" id="formGrid"></div>
 
-<main>
-  <div class="section-hd">Colour Palette</div>
-  <div class="palette" id="palette"></div>
-
-  <div class="section-hd">Team Selections</div>
-  <div class="form-grid" id="formGrid"></div>
-
-  <div class="submit-wrap">
-    <button class="submit-btn" id="submitBtn" onclick="submitAll()" disabled>CONFIRM ALL SELECTIONS</button>
-    <div class="submit-hint">All 28 teams must select a colour before confirming</div>
-  </div>
-</main>
-
-<div class="overlay" id="overlay">
-  <div class="modal">
-    <h2>✓ Selections Confirmed!</h2>
-    <p class="modal-sub">Final jersey colour assignments for DPL 2025.</p>
-    <div class="result-list" id="resultList"></div>
-    <div class="modal-btns">
-      <button class="btn-copy" onclick="copyResults()">📋 Copy Results to Clipboard</button>
-      <button class="btn-close" onclick="closeModal()">Close</button>
-    </div>
-  </div>
+<div style="text-align:center; margin:20px;">
+<button id="submitBtn" disabled>CONFIRM</button>
 </div>
 
 <script>
+const API_URL = "https://script.google.com/macros/s/AKfycbzqTuJ7ZN31ZbOK5LZ3jfTlDi83RqflO233OJf9a4QpVKcVMSJ2Tj-Yc3d0U6_Zn1P_UQ/exec";
+
 const COLOURS = [
-  { name: "Red",        hex: "#E53935" },
-  { name: "Blue",       hex: "#1E88E5" },
-  { name: "Green",      hex: "#43A047" },
-  { name: "Yellow",     hex: "#FDD835" },
-  { name: "Orange",     hex: "#FB8C00" },
-  { name: "Purple",     hex: "#8E24AA" },
-  { name: "Black",      hex: "#212121" },
-  { name: "White",      hex: "#F5F5F5" },
-  { name: "Grey",       hex: "#757575" },
-  { name: "Maroon",     hex: "#880E4F" },
-  { name: "Sky Blue",   hex: "#29B6F6" },
-  { name: "Navy Blue",  hex: "#0D1B6E" },
-  { name: "Teal",       hex: "#00897B" },
-  { name: "Lime",       hex: "#C6E823" },
-  { name: "Pink",       hex: "#F06292" },
-  { name: "Brown",      hex: "#6D4C41" },
-  { name: "Gold",       hex: "#FFB300" },
-  { name: "Silver",     hex: "#B0BEC5" },
-  { name: "Violet",     hex: "#7C4DFF" },
-  { name: "Indigo",     hex: "#3949AB" },
-  { name: "Coral",      hex: "#FF7043" },
-  { name: "Turquoise",  hex: "#00BCD4" },
-  { name: "Olive",      hex: "#827717" },
-  { name: "Magenta",    hex: "#E91E8C" },
-  { name: "Beige",      hex: "#D7CCC8" },
-  { name: "Mustard",    hex: "#F9A825" },
-  { name: "Peach",      hex: "#FFCCBC" },
-  { name: "Mint",       hex: "#A5D6A7" },
-  { name: "Lavender",   hex: "#CE93D8" },
-  { name: "Crimson",    hex: "#C62828" },
-  { name: "Charcoal",   hex: "#37474F" },
-  { name: "Aqua",       hex: "#00E5FF" },
+"Red","Blue","Green","Yellow","Orange","Purple","Black","White",
+"Grey","Maroon","Sky Blue","Navy Blue","Teal","Lime","Pink","Brown",
+"Gold","Silver","Violet","Indigo","Coral","Turquoise","Olive","Magenta",
+"Beige","Mustard","Peach","Mint","Lavender","Crimson","Charcoal","Aqua","Lime",
 ];
 
 const TEAMS = [
-  "TDL Group Of Company",
-  "BARCLAYS",
-  "INFOSYS",
-  "TDS",
-  "Congruent Infotech Pvt ltd",
-  "V Ships",
-  "Walmart",
-  "Salpcom",
-  "NASCO (DAE)",
-  "ENSONO Tech",
-  "INTELECT",
-  "CAMS",
-  "Zoho Corporation Pvt Limited",
-  "Ovation Services Private Limited",
-  "Standard Charted Bank",
-  "spectra medical India pvt ltd",
-  "GEN DIGITAL",
-  "APOLLO TYRES",
-  "HCL",
-  "FOURKITES",
-  "Societe Generale",
-  "Agilisium consulting service pvt ltd",
-  "DEPARTMENT OF ATOMIC ENERGY",
-  "Hapag Lloyd Global Service Pvt Ltd",
-  "Comcast India Engineering Center",
-  "Walmart Global Tech",
-  "Zifo Technologies Pvt Ltd",
-  "Fidelity Investments",
+"TDL Group","BARCLAYS","INFOSYS","TDS","Congruent","V Ships","Walmart","Salpcom",
+"NASCO","ENSONO","INTELECT","CAMS","Zoho","Ovation","Standard Chartered",
+"Spectra Medical","GEN DIGITAL","APOLLO TYRES","HCL","FOURKITES",
+"Societe Generale","Agilisium","DAE","Hapag Lloyd",
+"Comcast","Walmart Tech","Zifo","Fidelity","Standard Chatered Bank",
 ];
 
-const selections = {}; // idx -> colourName
+let selections = {};
 
-function usedSet() { return new Set(Object.values(selections)); }
-
-function buildPalette() {
-  const grid = document.getElementById('palette');
-  grid.innerHTML = '';
-  const used = usedSet();
-  COLOURS.forEach(c => {
-    const el = document.createElement('div');
-    el.className = 'chip' + (used.has(c.name) ? ' taken' : '');
-    el.id = 'chip-' + c.name;
-    el.innerHTML = `<div class="swatch" style="background:${c.hex}"></div><div class="chip-lbl">${c.name}</div>`;
-    grid.appendChild(el);
-  });
+/* 🔥 LOAD DATA (NO REFRESH ISSUE) */
+async function loadData() {
+  try {
+    const res = await fetch(API_URL + "?t=" + new Date().getTime());
+    const data = await res.json();
+    selections = data || {};
+    buildForm();
+  } catch (err) {
+    alert("Error loading data");
+  }
 }
 
-function buildCard(idx) {
-  const card = document.createElement('div');
-  card.className = 'card' + (selections[idx] ? ' done' : '');
-  card.id = 'card-' + idx;
-  card.style.animationDelay = Math.min(idx * 15, 400) + 'ms';
-
-  const used = usedSet();
-  const cur = selections[idx] || '';
-  const col = COLOURS.find(c => c.name === cur);
-
-  const opts = COLOURS.map(c => {
-    const taken = used.has(c.name) && c.name !== cur;
-    return `<option value="${c.name}" ${c.name === cur ? 'selected':''} ${taken ? 'disabled':''}>
-      ${taken ? '✕ ' : ''}${c.name}
-    </option>`;
-  }).join('');
-
-  card.innerHTML = `
-    <div class="num">${String(idx+1).padStart(2,'0')}</div>
-    <div class="team-info">
-      <div class="name">${TEAMS[idx]}</div>
-      <div class="abbr">${TEAMS[idx].split(/\s+/).map(w=>w[0]).join('').toUpperCase().slice(0,5)}</div>
-    </div>
-    <div class="picker">
-      <div class="preview-dot" id="dot-${idx}" style="background:${col ? col.hex : 'var(--border2)'}"></div>
-      <select onchange="onPick(${idx},this)">
-        <option value="">— Choose colour —</option>
-        ${opts}
-      </select>
-      <span class="arr">▼</span>
-    </div>
-    <div class="tick">✓</div>
-  `;
-  return card;
-}
-
+/* BUILD UI */
 function buildForm() {
   const grid = document.getElementById('formGrid');
   grid.innerHTML = '';
-  TEAMS.forEach((_, i) => grid.appendChild(buildCard(i)));
-}
 
-function refreshAllSelects() {
-  const used = usedSet();
-  TEAMS.forEach((_, idx) => {
-    const sel = document.getElementById('card-'+idx)?.querySelector('select');
-    if (!sel) return;
-    const cur = selections[idx] || '';
-    sel.innerHTML = `<option value="">— Choose colour —</option>` +
-      COLOURS.map(c => {
-        const taken = used.has(c.name) && c.name !== cur;
-        return `<option value="${c.name}" ${c.name === cur ? 'selected':''} ${taken ? 'disabled':''}>${taken?'✕ ':''}${c.name}</option>`;
-      }).join('');
-  });
-}
+  const used = new Set(Object.values(selections));
 
-function onPick(idx, sel) {
-  const val = sel.value;
-  const card = document.getElementById('card-'+idx);
-  const dot  = document.getElementById('dot-'+idx);
+  TEAMS.forEach((team) => {
+    const selected = selections[team];
 
-  if (!val) {
-    delete selections[idx];
-    card.classList.remove('done');
-    dot.style.background = 'var(--border2)';
-  } else {
-    selections[idx] = val;
-    card.classList.add('done');
-    const col = COLOURS.find(c => c.name === val);
-    dot.style.background = col ? col.hex : 'var(--border2)';
-  }
+    const card = document.createElement('div');
+    card.className = 'card' + (selected ? ' locked' : '');
 
-  refreshAllSelects();
-  buildPalette();
-  updateProgress();
-}
+    let options = `<option value="">Select Colour</option>`;
 
-function updateProgress() {
-  const n = Object.keys(selections).length;
-  const total = TEAMS.length;
-  document.getElementById('selCount').textContent  = n;
-  document.getElementById('remCount').textContent  = COLOURS.length - n;
-  document.getElementById('barCount').textContent  = `${n} / ${total}`;
-  document.getElementById('barFill').style.width   = ((n/total)*100) + '%';
-  document.getElementById('submitBtn').disabled    = n < total;
-}
+    COLOURS.forEach(c => {
+      const taken = used.has(c) && c !== selected;
+      options += `<option value="${c}" 
+        ${selected === c ? 'selected' : ''}
+        ${taken ? 'disabled' : ''}>
+        ${taken ? '✕ ' : ''}${c}
+      </option>`;
+    });
 
-function submitAll() {
-  const list = document.getElementById('resultList');
-  list.innerHTML = '';
-  TEAMS.forEach((name, idx) => {
-    const colName = selections[idx];
-    const col = COLOURS.find(c => c.name === colName);
-    const el = document.createElement('div');
-    el.className = 'r-item';
-    el.innerHTML = `
-      <div class="r-dot" style="background:${col.hex}; box-shadow:0 0 6px ${col.hex}60"></div>
-      <div class="r-team">${name}</div>
-      <div class="r-colour">${colName}</div>
+    card.innerHTML = `
+      <strong>${team}</strong>
+      <select onchange="pick('${team}', this)" ${selected ? 'disabled' : ''}>
+        ${options}
+      </select>
     `;
-    list.appendChild(el);
+
+    grid.appendChild(card);
   });
-  document.getElementById('overlay').classList.add('open');
+
+  updateBtn();
 }
 
-function closeModal() { document.getElementById('overlay').classList.remove('open'); }
+/* SELECT */
+async function pick(team, sel) {
+  const colour = sel.value;
+  if (!colour) return;
 
-function copyResults() {
-  const text = TEAMS.map((name, idx) => `${name}: ${selections[idx]}`).join('\n');
-  navigator.clipboard.writeText(text).then(() => {
-    const btn = document.querySelector('.btn-copy');
-    btn.textContent = '✓ Copied!';
-    setTimeout(() => btn.textContent = '📋 Copy Results to Clipboard', 2200);
-  });
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ team, colour })
+    });
+
+    const data = await res.json();
+
+    if (data.status === "error") {
+      alert(data.message);
+      sel.value = "";
+      return;
+    }
+
+    selections[team] = colour;
+    buildForm();
+
+  } catch (err) {
+    alert("Server error");
+    sel.value = "";
+  }
 }
 
-// Init
-buildPalette();
-buildForm();
-updateProgress();
+/* BUTTON */
+function updateBtn() {
+  document.getElementById('submitBtn').disabled =
+    Object.keys(selections).length !== TEAMS.length;
+}
+
+/* INIT */
+loadData();
 </script>
+
 </body>
 </html>

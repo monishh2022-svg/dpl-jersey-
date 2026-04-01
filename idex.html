@@ -1,95 +1,160 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DPL Jersey Selection</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
 <style>
-body { background:#111; color:#fff; font-family:sans-serif; }
-.card { margin:10px; padding:10px; background:#222; }
-.locked { border:1px solid green; }
+body {
+  background:#06090f;
+  color:#fff;
+  font-family:'DM Sans', sans-serif;
+  margin:0;
+}
+
+header {
+  text-align:center;
+  padding:40px;
+}
+
+h1 {
+  font-family:'Bebas Neue';
+  font-size:60px;
+}
+
+.form-grid {
+  max-width:900px;
+  margin:auto;
+  display:grid;
+  gap:10px;
+  padding:20px;
+}
+
+.card {
+  background:#111827;
+  padding:15px;
+  border-radius:10px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.locked {
+  border:1px solid #22c55e;
+}
+
+select {
+  padding:8px;
+  border-radius:6px;
+}
+
 </style>
 </head>
 
 <body>
 
-<h2>DPL Jersey Selection</h2>
-<div id="app"></div>
+<header>
+  <h1>DPL Jersey Selection</h1>
+  <p>Select once → permanently locked</p>
+</header>
+
+<div class="form-grid" id="formGrid"></div>
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbzqTuJ7ZN31ZbOK5LZ3jfTlDi83RqflO233OJf9a4QpVKcVMSJ2Tj-Yc3d0U6_Zn1P_UQ/exec";
 
-const COLOURS = ["Red","Blue","Green","Yellow","Orange","Purple"];
-const TEAMS = ["Team A","Team B","Team C","Team D"];
+const COLOURS = [
+"Red","Blue","Green","Yellow","Orange","Purple","Black","White",
+"Grey","Maroon","Sky Blue","Navy Blue","Teal","Lime","Pink","Brown",
+"Gold","Silver","Violet","Indigo","Coral","Turquoise","Olive","Magenta",
+"Beige","Mustard","Peach","Mint","Lavender","Crimson","Charcoal","Aqua"
+];
+
+const TEAMS = [
+"TDL Group","BARCLAYS","INFOSYS","TDS","Congruent","V Ships","Walmart","Salpcom",
+"NASCO","ENSONO","INTELECT","CAMS","Zoho","Ovation","Standard Chartered",
+"Spectra Medical","GEN DIGITAL","APOLLO TYRES","HCL","FOURKITES",
+"Societe Generale","Agilisium","DAE","Hapag Lloyd",
+"Comcast","Walmart Tech","Zifo","Fidelity"
+];
 
 let selections = {};
 
-// LOAD DATA
+// 🔥 LOAD EXISTING DATA (NO REFRESH ISSUE)
 async function loadData() {
   try {
     const res = await fetch(API_URL + "?t=" + Date.now());
     const text = await res.text();
 
-    // 🔥 IMPORTANT FIX (handle HTML error response)
-    if (text.startsWith("<")) {
-      alert("Apps Script not deployed properly (HTML returned)");
-      return;
-    }
+    console.log("GET:", text);
 
-    selections = JSON.parse(text);
-    render();
+    selections = text ? JSON.parse(text) : {};
 
-  } catch (e) {
-    alert("GET ERROR: " + e);
+    buildUI();
+
+  } catch (err) {
+    console.error(err);
+    alert("Error loading data");
   }
 }
 
-// RENDER UI
-function render() {
-  const app = document.getElementById("app");
-  app.innerHTML = "";
+// 🔥 BUILD UI
+function buildUI() {
+  const grid = document.getElementById("formGrid");
+  grid.innerHTML = "";
 
   const used = new Set(Object.values(selections));
 
   TEAMS.forEach(team => {
     const selected = selections[team];
 
-    let options = `<option value="">Select</option>`;
-    COLOURS.forEach(c => {
-      const taken = used.has(c) && c !== selected;
-      options += `<option value="${c}" ${selected===c?'selected':''} ${taken?'disabled':''}>${c}</option>`;
+    let options = `<option value="">Select Colour</option>`;
+
+    COLOURS.forEach(col => {
+      const taken = used.has(col) && col !== selected;
+
+      options += `
+        <option value="${col}" 
+          ${selected === col ? "selected" : ""}
+          ${taken ? "disabled" : ""}>
+          ${taken ? "✕ " : ""}${col}
+        </option>
+      `;
     });
 
-    const div = document.createElement("div");
-    div.className = "card" + (selected ? " locked" : "");
+    const card = document.createElement("div");
+    card.className = "card" + (selected ? " locked" : "");
 
-    div.innerHTML = `
-      <b>${team}</b>
-      <select onchange="pick('${team}', this)" ${selected?'disabled':''}>
+    card.innerHTML = `
+      <strong>${team}</strong>
+      <select onchange="selectColour('${team}', this)" ${selected ? "disabled" : ""}>
         ${options}
       </select>
     `;
 
-    app.appendChild(div);
+    grid.appendChild(card);
   });
 }
 
-// PICK
-async function pick(team, el) {
+// 🔥 SAVE DATA
+async function selectColour(team, el) {
   const colour = el.value;
+  if (!colour) return;
 
   try {
     const res = await fetch(API_URL, {
       method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
       body: JSON.stringify({ team, colour })
     });
 
     const text = await res.text();
-
-    if (text.startsWith("<")) {
-      alert("POST failed - check deployment");
-      return;
-    }
+    console.log("POST:", text);
 
     const data = JSON.parse(text);
 
@@ -100,13 +165,15 @@ async function pick(team, el) {
     }
 
     selections[team] = colour;
-    render();
+    buildUI();
 
-  } catch (e) {
-    alert("POST ERROR: " + e);
+  } catch (err) {
+    console.error(err);
+    alert("Server error");
   }
 }
 
+// INIT
 loadData();
 </script>
 

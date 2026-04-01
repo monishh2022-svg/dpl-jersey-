@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cricket League — Jersey Colour Selection</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0f1e;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #2a3650;
+    --accent: #f5a623;
+    --accent2: #e8390e;
+    --text: #e8eaf0;
+    --muted: #6b7a99;
+    --success: #22c55e;
+    --radius: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  /* Stadium light effect */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -200px; left: 50%;
+    transform: translateX(-50%);
+    width: 800px; height: 400px;
+    background: radial-gradient(ellipse, rgba(245,166,35,0.07) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: relative;
+    text-align: center;
+    padding: 52px 24px 36px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(245,166,35,0.04) 0%, transparent 100%);
+  }
+
+  .league-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(245,166,35,0.12);
+    border: 1px solid rgba(245,166,35,0.3);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .league-badge::before { content: '🏏'; font-size: 14px; }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 8vw, 72px);
+    letter-spacing: 3px;
+    line-height: 0.95;
+    background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  header p {
+    margin-top: 12px;
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 300;
+  }
+
+  .stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 28px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* Progress */
+  .progress-section {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,15,30,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+  }
+
+  .progress-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .progress-label {
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .progress-bar-wrap {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    border-radius: 100px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+    width: 0%;
+  }
+
+  .progress-count {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  /* Main layout */
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Colour palette legend */
+  .palette-section {
+    margin-bottom: 40px;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .colour-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+  }
+
+  .colour-chip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 4px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    cursor: default;
+  }
+
+  .colour-chip.taken {
+    opacity: 0.3;
+    filter: grayscale(0.7);
+  }
+
+  .colour-chip.available {
+    border-color: var(--border);
+  }
+
+  .colour-dot {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.15);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  }
+
+  .colour-name {
+    font-size: 9px;
+    text-align: center;
+    color: var(--muted);
+    line-height: 1.2;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Form cards */
+  .form-grid {
+    display: grid;
+    gap: 16px;
+  }
+
+  .team-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    display: grid;
+    grid-template-columns: 36px 1fr auto;
+    align-items: center;
+    gap: 16px;
+    transition: border-color 0.2s, transform 0.2s;
+    animation: slideIn 0.4s ease both;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .team-card:hover {
+    border-color: rgba(245,166,35,0.3);
+    transform: translateY(-1px);
+  }
+
+  .team-card.selected {
+    border-color: var(--success);
+    background: linear-gradient(135deg, var(--surface), rgba(34,197,94,0.05));
+  }
+
+  .team-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1;
+  }
+
+  .team-name {
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.3px;
+  }
+
+  .team-abbr {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+    font-weight: 400;
+  }
+
+  .colour-select-wrap {
+    position: relative;
+    min-width: 200px;
+  }
+
+  .colour-preview-dot {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--border);
+    border: 1.5px solid rgba(255,255,255,0.15);
+    transition: background 0.3s;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  select {
+    width: 100%;
+    appearance: none;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 36px 10px 36px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  select:focus { border-color: var(--accent); }
+
+  .select-arrow {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--muted);
+    font-size: 10px;
+  }
+
+  .check-icon {
+    display: none;
+    width: 22px; height: 22px;
+    background: var(--success);
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+    margin-left: -4px;
+  }
+
+  .team-card.selected .check-icon { display: flex; }
+
+  /* Submit section */
+  .submit-section {
+    margin-top: 48px;
+    text-align: center;
+  }
+
+  .submit-btn {
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border: none;
+    color: #fff;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 3px;
+    padding: 18px 56px;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 24px rgba(245,166,35,0.2);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(245,166,35,0.35);
+  }
+
+  .submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .submit-hint {
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* Results modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(6px);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 640px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    animation: popIn 0.3s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .modal h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    letter-spacing: 2px;
+    color: var(--success);
+    margin-bottom: 8px;
+  }
+
+  .modal p { color: var(--muted); margin-bottom: 24px; font-size: 14px; }
+
+  .result-list {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+
+  .result-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  .result-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    border: 1.5px solid rgba(255,255,255,0.15);
+  }
+
+  .result-team { flex: 1; font-weight: 600; }
+  .result-colour { color: var(--muted); font-size: 12px; }
+
+  .modal-close {
+    background: var(--border);
+    border: none;
+    color: var(--text);
+    padding: 12px 28px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    width: 100%;
+    transition: background 0.2s;
+  }
+
+  .modal-close:hover { background: var(--surface2); }
+
+  .copy-btn {
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border: none;
+    color: #fff;
+    padding: 12px 28px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    width: 100%;
+    margin-bottom: 10px;
+    transition: opacity 0.2s;
+  }
+
+  .copy-btn:hover { opacity: 0.9; }
+
+  @media (max-width: 600px) {
+    .team-card { grid-template-columns: 28px 1fr; }
+    .colour-select-wrap { grid-column: 1 / -1; min-width: unset; }
+    .check-icon { display: none !important; }
+    .team-card.selected { border-color: var(--success); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="league-badge">Cricket League 2025</div>
+  <h1>Jersey Colour<br>Selection</h1>
+  <p>Each team selects one unique jersey colour. Once chosen, it's removed for others.</p>
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-num" id="totalTeams">32</div><div class="stat-label">Teams</div></div>
+    <div class="stat"><div class="stat-num" id="selectedCount">0</div><div class="stat-label">Selected</div></div>
+    <div class="stat"><div class="stat-num" id="remainingCount">32</div><div class="stat-label">Colours Left</div></div>
+  </div>
+</header>
+
+<div class="progress-section">
+  <div class="progress-inner">
+    <span class="progress-label">Progress</span>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progressBar"></div>
+    </div>
+    <span class="progress-count" id="progressCount">0 / 32</span>
+  </div>
+</div>
+
+<main>
+  <!-- Colour Palette Legend -->
+  <div class="palette-section">
+    <div class="section-title">Available Colours</div>
+    <div class="colour-grid" id="colourGrid"></div>
+  </div>
+
+  <!-- Team Form -->
+  <div class="section-title">Team Selections</div>
+  <div class="form-grid" id="formGrid"></div>
+
+  <div class="submit-section">
+    <button class="submit-btn" id="submitBtn" onclick="submitAll()">CONFIRM ALL SELECTIONS</button>
+    <div class="submit-hint">All 32 teams must select a colour before submitting</div>
+  </div>
+</main>
+
+<!-- Results Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h2>✓ Selections Confirmed!</h2>
+    <p>Here are the final jersey colour assignments for all 32 teams.</p>
+    <div class="result-list" id="resultList"></div>
+    <button class="copy-btn" onclick="copyResults()">📋 Copy to Clipboard</button>
+    <button class="modal-close" onclick="closeModal()">Close</button>
+  </div>
+</div>
+
+<script>
+const COLOURS = [
+  { name: "Crimson Red",      hex: "#DC143C" },
+  { name: "Royal Blue",       hex: "#4169E1" },
+  { name: "Forest Green",     hex: "#228B22" },
+  { name: "Gold",             hex: "#FFD700" },
+  { name: "Orange",           hex: "#FF8C00" },
+  { name: "Purple",           hex: "#7B2D8B" },
+  { name: "Sky Blue",         hex: "#00BFFF" },
+  { name: "Maroon",           hex: "#800000" },
+  { name: "Teal",             hex: "#008080" },
+  { name: "Hot Pink",         hex: "#FF69B4" },
+  { name: "Lime Green",       hex: "#32CD32" },
+  { name: "Navy",             hex: "#001F5B" },
+  { name: "Turquoise",        hex: "#40E0D0" },
+  { name: "Coral",            hex: "#FF6347" },
+  { name: "Indigo",           hex: "#4B0082" },
+  { name: "Amber",            hex: "#FFBF00" },
+  { name: "Chocolate",        hex: "#7B3F00" },
+  { name: "Olive",            hex: "#808000" },
+  { name: "Magenta",          hex: "#FF00C8" },
+  { name: "Steel Blue",       hex: "#4682B4" },
+  { name: "Burnt Orange",     hex: "#CC5500" },
+  { name: "Emerald",          hex: "#009B77" },
+  { name: "Rose Gold",        hex: "#E8A0A0" },
+  { name: "Electric Blue",    hex: "#0066FF" },
+  { name: "Saffron",          hex: "#FF9933" },
+  { name: "Dark Teal",        hex: "#005F5F" },
+  { name: "Scarlet",          hex: "#FF2400" },
+  { name: "Cobalt",           hex: "#0047AB" },
+  { name: "Jade",             hex: "#00A86B" },
+  { name: "Bronze",           hex: "#CD7F32" },
+  { name: "Lavender",         hex: "#967BB6" },
+  { name: "Carbon Black",     hex: "#2B2B2B" },
+];
+
+const TEAMS = [
+  "Mumbai Warriors","Chennai Strikers","Delhi Dynamites","Bangalore Blaze",
+  "Kolkata Kings","Hyderabad Hawks","Pune Panthers","Jaipur Royals",
+  "Ahmedabad Avengers","Lucknow Lions","Chandigarh Challengers","Surat Sharks",
+  "Bhopal Bulls","Nagpur Knights","Kochi Cobras","Vizag Vikings",
+  "Indore Invaders","Patna Pirates","Ranchi Rockets","Guwahati Giants",
+  "Coimbatore Crushers","Mysore Mavericks","Vadodara Vipers","Raipur Raiders",
+  "Amritsar Arrows","Jodhpur Jackals","Agra Aces","Srinagar Stags",
+  "Thiruvananthapuram Tigers","Bhubaneswar Bears","Dehradun Dragons","Shillong Spartans"
+];
+
+// State
+const selections = {}; // teamIndex -> colourName
+
+function getUsedColours() {
+  return new Set(Object.values(selections));
+}
+
+function buildColourGrid() {
+  const grid = document.getElementById('colourGrid');
+  grid.innerHTML = '';
+  const used = getUsedColours();
+  COLOURS.forEach(c => {
+    const chip = document.createElement('div');
+    chip.className = 'colour-chip ' + (used.has(c.name) ? 'taken' : 'available');
+    chip.id = 'chip-' + c.name.replace(/\s/g,'_');
+    chip.innerHTML = `<div class="colour-dot" style="background:${c.hex}"></div><div class="colour-name">${c.name}</div>`;
+    grid.appendChild(chip);
+  });
+}
+
+function buildTeamCard(idx) {
+  const card = document.createElement('div');
+  card.className = 'team-card';
+  card.id = 'card-' + idx;
+  card.style.animationDelay = (idx * 18) + 'ms';
+
+  const used = getUsedColours();
+  const currentVal = selections[idx] || '';
+
+  const options = COLOURS.map(c => {
+    const isTaken = used.has(c.name) && c.name !== currentVal;
+    return `<option value="${c.name}" ${c.name === currentVal ? 'selected' : ''} ${isTaken ? 'disabled' : ''}>${isTaken ? '✕ ' : ''}${c.name}</option>`;
+  }).join('');
+
+  const currentColour = COLOURS.find(c => c.name === currentVal);
+  const dotBg = currentColour ? currentColour.hex : 'var(--border)';
+
+  card.innerHTML = `
+    <div class="team-num">${String(idx+1).padStart(2,'0')}</div>
+    <div>
+      <div class="team-name">${TEAMS[idx]}</div>
+      <div class="team-abbr">${TEAMS[idx].split(' ').map(w=>w[0]).join('')}</div>
+    </div>
+    <div class="colour-select-wrap">
+      <div class="colour-preview-dot" id="dot-${idx}" style="background:${dotBg}"></div>
+      <select onchange="onSelect(${idx}, this)">
+        <option value="">— Pick colour —</option>
+        ${options}
+      </select>
+      <span class="select-arrow">▼</span>
+    </div>
+    <div class="check-icon">✓</div>
+  `;
+
+  if (currentVal) card.classList.add('selected');
+  return card;
+}
+
+function buildForm() {
+  const grid = document.getElementById('formGrid');
+  grid.innerHTML = '';
+  TEAMS.forEach((_, idx) => {
+    grid.appendChild(buildTeamCard(idx));
+  });
+}
+
+function rebuildAllSelects() {
+  const used = getUsedColours();
+  TEAMS.forEach((_, idx) => {
+    const card = document.getElementById('card-' + idx);
+    if (!card) return;
+    const sel = card.querySelector('select');
+    const currentVal = selections[idx] || '';
+    sel.innerHTML = `<option value="">— Pick colour —</option>` +
+      COLOURS.map(c => {
+        const isTaken = used.has(c.name) && c.name !== currentVal;
+        return `<option value="${c.name}" ${c.name === currentVal ? 'selected' : ''} ${isTaken ? 'disabled' : ''}>${isTaken ? '✕ ' : ''}${c.name}</option>`;
+      }).join('');
+  });
+}
+
+function onSelect(idx, selectEl) {
+  const val = selectEl.value;
+  if (!val) {
+    delete selections[idx];
+    document.getElementById('card-'+idx).classList.remove('selected');
+    document.getElementById('dot-'+idx).style.background = 'var(--border)';
+  } else {
+    selections[idx] = val;
+    document.getElementById('card-'+idx).classList.add('selected');
+    const col = COLOURS.find(c => c.name === val);
+    document.getElementById('dot-'+idx).style.background = col ? col.hex : 'var(--border)';
+  }
+
+  rebuildAllSelects();
+  buildColourGrid();
+  updateProgress();
+}
+
+function updateProgress() {
+  const count = Object.keys(selections).length;
+  const total = TEAMS.length;
+  document.getElementById('selectedCount').textContent = count;
+  document.getElementById('remainingCount').textContent = total - count;
+  document.getElementById('progressCount').textContent = `${count} / ${total}`;
+  document.getElementById('progressBar').style.width = ((count/total)*100) + '%';
+  document.getElementById('submitBtn').disabled = count < total;
+}
+
+function submitAll() {
+  const resultList = document.getElementById('resultList');
+  resultList.innerHTML = '';
+  TEAMS.forEach((name, idx) => {
+    const colName = selections[idx];
+    const col = COLOURS.find(c => c.name === colName);
+    const item = document.createElement('div');
+    item.className = 'result-item';
+    item.innerHTML = `
+      <div class="result-dot" style="background:${col.hex}; box-shadow: 0 0 6px ${col.hex}66"></div>
+      <div class="result-team">${name}</div>
+      <div class="result-colour">${colName}</div>
+    `;
+    resultList.appendChild(item);
+  });
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+
+function copyResults() {
+  const lines = TEAMS.map((name, idx) => `${name}: ${selections[idx]}`).join('\n');
+  navigator.clipboard.writeText(lines).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = '📋 Copy to Clipboard', 2000);
+  });
+}
+
+// Init
+buildColourGrid();
+buildForm();
+updateProgress();
+</script>
+</body>
+</html>

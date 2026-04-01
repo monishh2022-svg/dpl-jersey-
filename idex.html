@@ -1,118 +1,81 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DPL Jersey Selection</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-
 <style>
-body { background:#06090f; color:#fff; font-family:'DM Sans'; margin:0; }
-header { text-align:center; padding:40px; }
-h1 { font-family:'Bebas Neue'; font-size:60px; }
-
-.form-grid { max-width:900px; margin:auto; display:grid; gap:10px; padding:20px; }
-.card { background:#111827; padding:15px; border-radius:10px; display:flex; justify-content:space-between; align-items:center; }
-
-select { padding:8px; border-radius:6px; }
-
-.locked { border:1px solid #22c55e; }
-
-button {
-  background:#f5a623; border:none; padding:15px 30px;
-  font-size:18px; border-radius:50px; cursor:pointer;
-}
-button:disabled { opacity:0.4; }
+body { background:#111; color:#fff; font-family:sans-serif; }
+.card { margin:10px; padding:10px; background:#222; }
+.locked { border:1px solid green; }
 </style>
 </head>
 
 <body>
 
-<header>
-<h1>DPL Jersey Selection</h1>
-<p>Select once → permanently locked</p>
-</header>
-
-<div class="form-grid" id="formGrid"></div>
-
-<div style="text-align:center; margin:20px;">
-<button id="submitBtn" disabled>CONFIRM</button>
-</div>
+<h2>DPL Jersey Selection</h2>
+<div id="app"></div>
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbzqTuJ7ZN31ZbOK5LZ3jfTlDi83RqflO233OJf9a4QpVKcVMSJ2Tj-Yc3d0U6_Zn1P_UQ/exec";
 
-const COLOURS = [
-"Red","Blue","Green","Yellow","Orange","Purple","Black","White",
-"Grey","Maroon","Sky Blue","Navy Blue","Teal","Lime","Pink","Brown",
-"Gold","Silver","Violet","Indigo","Coral","Turquoise","Olive","Magenta",
-"Beige","Mustard","Peach","Mint","Lavender","Crimson","Charcoal","Aqua","Lime",
-];
-
-const TEAMS = [
-"TDL Group","BARCLAYS","INFOSYS","TDS","Congruent","V Ships","Walmart","Salpcom",
-"NASCO","ENSONO","INTELECT","CAMS","Zoho","Ovation","Standard Chartered",
-"Spectra Medical","GEN DIGITAL","APOLLO TYRES","HCL","FOURKITES",
-"Societe Generale","Agilisium","DAE","Hapag Lloyd",
-"Comcast","Walmart Tech","Zifo","Fidelity","Standard Chatered Bank",
-];
+const COLOURS = ["Red","Blue","Green","Yellow","Orange","Purple"];
+const TEAMS = ["Team A","Team B","Team C","Team D"];
 
 let selections = {};
 
-/* 🔥 LOAD DATA (NO REFRESH ISSUE) */
+// LOAD DATA
 async function loadData() {
   try {
-    const res = await fetch(API_URL + "?t=" + new Date().getTime());
-    const data = await res.json();
-    selections = data || {};
-    buildForm();
-  } catch (err) {
-    alert("Error loading data");
+    const res = await fetch(API_URL + "?t=" + Date.now());
+    const text = await res.text();
+
+    // 🔥 IMPORTANT FIX (handle HTML error response)
+    if (text.startsWith("<")) {
+      alert("Apps Script not deployed properly (HTML returned)");
+      return;
+    }
+
+    selections = JSON.parse(text);
+    render();
+
+  } catch (e) {
+    alert("GET ERROR: " + e);
   }
 }
 
-/* BUILD UI */
-function buildForm() {
-  const grid = document.getElementById('formGrid');
-  grid.innerHTML = '';
+// RENDER UI
+function render() {
+  const app = document.getElementById("app");
+  app.innerHTML = "";
 
   const used = new Set(Object.values(selections));
 
-  TEAMS.forEach((team) => {
+  TEAMS.forEach(team => {
     const selected = selections[team];
 
-    const card = document.createElement('div');
-    card.className = 'card' + (selected ? ' locked' : '');
-
-    let options = `<option value="">Select Colour</option>`;
-
+    let options = `<option value="">Select</option>`;
     COLOURS.forEach(c => {
       const taken = used.has(c) && c !== selected;
-      options += `<option value="${c}" 
-        ${selected === c ? 'selected' : ''}
-        ${taken ? 'disabled' : ''}>
-        ${taken ? '✕ ' : ''}${c}
-      </option>`;
+      options += `<option value="${c}" ${selected===c?'selected':''} ${taken?'disabled':''}>${c}</option>`;
     });
 
-    card.innerHTML = `
-      <strong>${team}</strong>
-      <select onchange="pick('${team}', this)" ${selected ? 'disabled' : ''}>
+    const div = document.createElement("div");
+    div.className = "card" + (selected ? " locked" : "");
+
+    div.innerHTML = `
+      <b>${team}</b>
+      <select onchange="pick('${team}', this)" ${selected?'disabled':''}>
         ${options}
       </select>
     `;
 
-    grid.appendChild(card);
+    app.appendChild(div);
   });
-
-  updateBtn();
 }
 
-/* SELECT */
-async function pick(team, sel) {
-  const colour = sel.value;
-  if (!colour) return;
+// PICK
+async function pick(team, el) {
+  const colour = el.value;
 
   try {
     const res = await fetch(API_URL, {
@@ -121,30 +84,29 @@ async function pick(team, sel) {
       body: JSON.stringify({ team, colour })
     });
 
-    const data = await res.json();
+    const text = await res.text();
+
+    if (text.startsWith("<")) {
+      alert("POST failed - check deployment");
+      return;
+    }
+
+    const data = JSON.parse(text);
 
     if (data.status === "error") {
       alert(data.message);
-      sel.value = "";
+      el.value = "";
       return;
     }
 
     selections[team] = colour;
-    buildForm();
+    render();
 
-  } catch (err) {
-    alert("Server error");
-    sel.value = "";
+  } catch (e) {
+    alert("POST ERROR: " + e);
   }
 }
 
-/* BUTTON */
-function updateBtn() {
-  document.getElementById('submitBtn').disabled =
-    Object.keys(selections).length !== TEAMS.length;
-}
-
-/* INIT */
 loadData();
 </script>
 
